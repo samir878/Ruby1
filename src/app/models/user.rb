@@ -1,6 +1,12 @@
 class User < ApplicationRecord
-	# Associations from Devise 
-	devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable # Relationship with weight entries has_many :weight_entries, dependent: :destroy
-
 	has_many :weight_entries, dependent: :destroy
+
+	# Associations from Devise 
+	devise :database_authenticatable, :registerable, 
+	       :recoverable, :rememberable, :validatable,
+        :omniauthable, omniauth_providers: [:google_oauth2]
+	
+	def self.from_google(u)
+		create_with(uid: u[:uid], provider: 'google', password: Devise.friendly_token[0, 20]).find_or_create_by!(email: u[:email])
+	end
 end
